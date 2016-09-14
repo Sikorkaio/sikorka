@@ -15,10 +15,10 @@ import "./sikorka_basic_interface.sol";
 
 contract DiscountTokens is SikorkaBasicInterface {
 
-    mapping (address => uint256) balances;
+    mapping (address => uint256) public balances;
     address[] participants;
     uint tokens_to_reward;
-    uint token_round_end;
+    uint public token_round_end;
 
     /**
      * Constructor
@@ -30,6 +30,7 @@ contract DiscountTokens is SikorkaBasicInterface {
      *                             will last
      */
     function DiscountTokens(
+        string _name,
         uint _latitude,
         uint _longtitude,
         string _question,
@@ -37,6 +38,7 @@ contract DiscountTokens is SikorkaBasicInterface {
         uint _tokens_to_reward,
         uint _round_duration
     ) SikorkaBasicInterface(
+        _name,
         _latitude,
         _longtitude,
         _question,

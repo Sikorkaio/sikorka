@@ -32,6 +32,7 @@ contract Owned {
 
 contract SikorkaBasicInterface is Owned {
 
+    string public name;
     string public question;
     bytes32 internal answer_hash;
     uint internal latitude;
@@ -50,11 +51,13 @@ contract SikorkaBasicInterface is Owned {
     }
 
     function SikorkaBasicInterface(
+        string _name,
         uint _latitude,
         uint _longtitude,
         string _question,
         bytes32 _answer_hash
     ) {
+        name = _name;
         latitude = _latitude;
         longtitude = _longtitude;
         question = _question;
@@ -70,5 +73,14 @@ contract SikorkaBasicInterface is Owned {
     function change_question(string _question, bytes32 _answer_hash) only_owner {
         question = _question;
         answer_hash = _answer_hash;
+    }
+
+    /**
+     * Confirm whether the answer to the challenge question is correct
+     *
+     * @param _answer        The answer to the question
+     */
+    function confirm_answer(string _answer) constant returns (bool) {
+        return sha3(_answer) == answer_hash;
     }
 }
