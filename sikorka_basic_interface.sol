@@ -8,7 +8,7 @@
  * @license BSD3
  */
 
-pragma solidity ^0.4.1;
+pragma solidity ^0.4.2;
 
 contract Owned {
     address owner;
@@ -36,30 +36,49 @@ contract SikorkaBasicInterface is Owned {
     string public question;
     bytes32 internal answer_hash;
     uint internal latitude;
-    uint internal longtitude;
+    uint internal longitude;
+
+    function distance(
+        uint _latitude1,
+        uint _longitude1,
+        uint _latitude2,
+        uint _longitude2) returns (uint) {
+        return 1; // TODO
+    }
 
     /**
      * Require Proof Of Presence for the function to be executed
-     *
+     * @param _latitude      User's current latitude
+     * @param _longitude     User's current longitude
      * @param _answer        The answer to give to the challenge question
      */
-    modifier need_pop(string _answer) {
+    modifier need_pop(uint _latitude, uint _longitude, string _answer) {
         if (sha3(_answer) != answer_hash) {
+            throw;
+        }
+        if (distance(_latitude, _longitude, latitude, longitude) > 1) {
             throw;
         }
         _;
     }
 
+    /**
+     * @param _name           A name to give to the contract
+     * @param _latitude       The latitude part of the geolocation coordinates
+     * @param _longitude      The longitude part of the geolocation coordinates
+     * @param _question       The Proof Of Presence challenge question
+     * @param _answer_hash    A sha3 hash of the answer to the challenge question
+     */
     function SikorkaBasicInterface(
         string _name,
         uint _latitude,
-        uint _longtitude,
+        uint _longitude,
         string _question,
         bytes32 _answer_hash
     ) {
         name = _name;
         latitude = _latitude;
-        longtitude = _longtitude;
+        longitude = _longitude;
         question = _question;
         answer_hash = _answer_hash;
     }
