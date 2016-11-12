@@ -8,7 +8,7 @@
  * @license BSD3
  */
 
-pragma solidity ^0.4.2;
+pragma solidity ^0.4.4;
 
 contract Owned {
     address owner;

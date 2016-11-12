@@ -8,7 +8,7 @@
  * @license BSD3
  */
 
-pragma solidity ^0.4.1;
+pragma solidity ^0.4.4;
 
 import "./sikorka_basic_interface.sol";
 
@@ -51,9 +51,12 @@ contract DiscountTokens is SikorkaBasicInterface {
     /**
      * Claim discount tokens for the shop!
      *
+     * @param _latitude      User's latitude coordinate
+     * @param _longitude     User's longitude coordinate
      * @param _answer        The answer to the challenge question.
      */
-    function claimToken(string _answer) need_pop(_answer) {
+    function claimToken(uint _latitude, uint _longitude, string _answer)
+        need_pop(_latitude, _longitude, _answer) {
 
         // User already got their discount tokens for this round
         if (balances[msg.sender] != 0) {
