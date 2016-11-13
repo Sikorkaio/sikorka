@@ -21,14 +21,14 @@ pragma solidity ^0.4.4;
 contract Trigonometry {
 
     // Table index into the trignometric table
-    uint8 constant INDEX_WIDTH = 4;
+    uint constant INDEX_WIDTH = 4;
     // Interpolation between successive entries in the tables
-    uint8 constant INTERP_WIDTH = 8;
-    uint8 constant INDEX_OFFSET = 12 - INDEX_WIDTH; // 8
-    uint8 constant INTERP_OFFSET = INDEX_OFFSET - INTERP_WIDTH; // 0
+    uint constant INTERP_WIDTH = 8;
+    uint constant INDEX_OFFSET = 12 - INDEX_WIDTH; // 8
+    uint constant INTERP_OFFSET = INDEX_OFFSET - INTERP_WIDTH; // 0
     uint constant QUADRANT_HIGH_MASK = 8192;
     uint constant QUADRANT_LOW_MASK = 4096;
-    uint8 constant SINE_TABLE_SIZE = 16;
+    uint constant SINE_TABLE_SIZE = 16;
 
     // TODO: constant is not yet implemented for this type
     // Nice to have in solidity: if identifier is a constant uint
@@ -42,14 +42,15 @@ contract Trigonometry {
     }
 
 
-    function bits(uint16 _value, uint8 _width, uint8 _bit) internal returns (int32) {
+    function bits(uint _value, uint _width, uint _bit) internal returns (uint) {
         /* return (_value >> _bit) & ((1 << _width) - 1); */
         return (_value / (2 ** _bit)) & (((2 **  _width)) - 1);
     }
 
-
     /**
-     * Return the sine of an integer approximated angle
+     * Return the sine of an integer approximated angle as a signed 16-bit
+     * integer. It is scaled to an amplitude of 32,767, thus values
+     * will range from -32,767 to +32,767.
      *
      * @param _angle A 14-bit angle, 0 - 0x3FFFF. This divides the circle
      *              into 16,384 angle units, instead of the standard 360 degrees.
@@ -57,9 +58,9 @@ contract Trigonometry {
      *              - 1 angle unit =~ 360/16384 =~ 0.0219727 degrees
      *              - 1 angle unit =~ 2*M_PI/16384 =~ 0.0003835 radians
      */
-    function sin(uint16 _angle) returns (int) {
-        int32 interp = bits(_angle, INTERP_WIDTH, INTERP_OFFSET);
-        uint8 index = uint8(bits(_angle, INDEX_WIDTH, INDEX_OFFSET));
+    function sin(uint16 _angle) returns (int32) {
+        uint interp = bits(_angle, INTERP_WIDTH, INTERP_OFFSET);
+        uint index = bits(_angle, INDEX_WIDTH, INDEX_OFFSET);
 
         bool is_odd_quadrant = (_angle & QUADRANT_LOW_MASK) == 0;
         bool is_negative_quadrant = (_angle & QUADRANT_HIGH_MASK) != 0;
@@ -68,16 +69,15 @@ contract Trigonometry {
             index = SINE_TABLE_SIZE - 1 - index;
         }
 
-        int32 x1 = sin16_table[index];
-        int32 x2 = sin16_table[index + 1];
-        /* int32 approximation = ((x2-x1) * interp) >> SINE_INTERP_WIDTH; */
-        int32 approximation = ((x2 - x1) * interp) / (2 ** INTERP_WIDTH);
+        uint x1 = sin16_table[index];
+        uint x2 = sin16_table[index + 1];
+        uint approximation = ((x2 - x1) * interp) / (2 ** INTERP_WIDTH);
 
         int32 sine;
         if (is_odd_quadrant) {
-            sine = x1 + approximation;
+            sine = int32(x1) + int32(approximation);
         } else {
-            sine = x2 - approximation;
+            sine = int32(x2) - int32(approximation);
         }
 
         if (is_negative_quadrant) {
