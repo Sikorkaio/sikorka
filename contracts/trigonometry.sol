@@ -57,8 +57,10 @@ contract Trigonometry {
      *              Thus:
      *              - 1 angle unit =~ 360/16384 =~ 0.0219727 degrees
      *              - 1 angle unit =~ 2*M_PI/16384 =~ 0.0003835 radians
+     * @return The sine result as a number in the range -32767 to 32767. The
+     *         error margin can be up to 41 decimal digits.
      */
-    function sin(uint16 _angle) returns (int32) {
+    function sin(uint16 _angle) returns (int) {
         uint interp = bits(_angle, INTERP_WIDTH, INTERP_OFFSET);
         uint index = bits(_angle, INDEX_WIDTH, INDEX_OFFSET);
 
@@ -73,11 +75,11 @@ contract Trigonometry {
         uint x2 = sin16_table[index + 1];
         uint approximation = ((x2 - x1) * interp) / (2 ** INTERP_WIDTH);
 
-        int32 sine;
+        int sine;
         if (is_odd_quadrant) {
-            sine = int32(x1) + int32(approximation);
+            sine = int(x1) + int(approximation);
         } else {
-            sine = int32(x2) - int32(approximation);
+            sine = int(x2) - int(approximation);
         }
 
         if (is_negative_quadrant) {
