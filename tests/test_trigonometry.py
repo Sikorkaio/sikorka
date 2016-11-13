@@ -57,8 +57,26 @@ def assert_sin(trigcontract, angle_degrees):
     )
 
 
+def assert_cos(trigcontract, angle_degrees):
+    angle_radians, angle_int = degrees_to_params(angle_degrees)
+    res = trigcontract.call().cos(angle_int)
+    expected_res = float_to_result(math.cos(angle_radians))
+    # Since it's an approximation we get close to the expected value, but we
+    # can also be off by some allowed error
+    assert abs(res - expected_res) <= ACCURACY, "Testing cos({}) got {} but expected {}".format(
+        angle_degrees, res, expected_res
+    )
+
+
 def test_sin(chain):
     tig = chain.get_contract('Trigonometry')
 
     for i in drange(0, 360, 0.25):
         assert_sin(tig, i)
+
+
+def test_cos(chain):
+    tig = chain.get_contract('Trigonometry')
+
+    for i in drange(0, 360, 0.25):
+        assert_cos(tig, i)

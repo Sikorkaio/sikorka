@@ -11,6 +11,9 @@
  *
  * The implementation is based off Dave Dribin's trigint C library
  * http://www.dribin.org/dave/trigint/
+ * Which in turn is based from a now deleted article which can be found in
+ * the internet wayback machine:
+ * http://web.archive.org/web/20120301144605/http://www.dattalo.com/technical/software/pic/picsine.html
  *
  * @author Lefteris Karapetsas
  * @license BSD3
@@ -87,6 +90,20 @@ contract Trigonometry {
         }
 
         return sine;
+    }
+
+    /**
+     * Return the cos of an integer approximated angle.
+     * It functions just like the sin() method but uses the trigonometric
+     * identity sin(x + pi/2) = cos(x) to quickly calculate the cos.
+     */
+    function cos(uint16 _angle) returns (int) {
+        if (_angle > 16384 - QUADRANT_LOW_MASK) {
+            _angle = uint16(QUADRANT_LOW_MASK) - 16384 - _angle;
+        } else {
+            _angle += uint16(QUADRANT_LOW_MASK);
+        }
+        return sin(_angle);
     }
 
 }
