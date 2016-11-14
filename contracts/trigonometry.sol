@@ -1,7 +1,7 @@
 /**
  * Basic trigonometry functions
  *
- * Solidity contract offering the functionality of basic trigonometry functions
+ * Solidity library offering the functionality of basic trigonometry functions
  * with both input and output being integer approximated.
  *
  * This is useful since:
@@ -21,7 +21,7 @@
 
 pragma solidity ^0.4.4;
 
-contract Trigonometry {
+library Trigonometry {
 
     // Table index into the trignometric table
     uint constant INDEX_WIDTH = 4;
