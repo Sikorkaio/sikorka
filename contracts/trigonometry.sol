@@ -23,12 +23,12 @@ pragma solidity ^0.4.4;
 
 library Trigonometry {
 
-    // Table index into the trignometric table
+    // Table index into the trigonometric table
     uint constant INDEX_WIDTH = 4;
     // Interpolation between successive entries in the tables
     uint constant INTERP_WIDTH = 8;
-    uint constant INDEX_OFFSET = 12 - INDEX_WIDTH; // 8
-    uint constant INTERP_OFFSET = INDEX_OFFSET - INTERP_WIDTH; // 0
+    uint constant INDEX_OFFSET = 12 - INDEX_WIDTH;
+    uint constant INTERP_OFFSET = INDEX_OFFSET - INTERP_WIDTH;
     uint constant QUADRANT_HIGH_MASK = 8192;
     uint constant QUADRANT_LOW_MASK = 4096;
     uint constant SINE_TABLE_SIZE = 16;
@@ -42,6 +42,17 @@ library Trigonometry {
     }
 
 
+    /**
+     * Convenience function to apply a mask on an integer to extract a certain
+     * number of bits. Using exponents since solidity still does not support
+     * shifting.
+     *
+     * @param _value The integer whose bits we want to get
+     * @param _width The width of the bits (in bits) we want to extract
+     * @param _offset The offset of the bits (in bits) we want to extract
+     * @return An integer containing _width bits of _value starting at the
+     *         _offset bit
+     */
     function bits(uint _value, uint _width, uint _bit) internal returns (uint) {
         return (_value / (2 ** _bit)) & (((2 **  _width)) - 1);
     }

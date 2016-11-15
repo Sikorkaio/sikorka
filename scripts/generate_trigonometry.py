@@ -5,6 +5,7 @@ import math
 import re
 import sys
 import decimal
+from __future__ import division
 
 
 def re_replace_constant(string, typename, varname, value):
@@ -61,19 +62,13 @@ def generate_trigonometry(amplitude, table_size, number_of_bytes):
         lines,
         'uint',
         'QUADRANT_HIGH_MASK',
-        decimal.Decimal(amplitude / 4).quantize(
-            decimal.Decimal('1'),
-            rounding=decimal.ROUND_HALF_UP
-        )
+        int(round(amplitude / 4))
     )
     lines = re_replace_constant(
         lines,
         'uint',
         'QUADRANT_LOW_MASK',
-        decimal.Decimal(amplitude / 8).quantize(
-            decimal.Decimal('1'),
-            rounding=decimal.ROUND_HALF_UP
-        )
+        int(round(amplitude / 8))
     )
     lines = re_replace_constant(
         lines,
