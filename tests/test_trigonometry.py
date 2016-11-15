@@ -52,9 +52,11 @@ def assert_sin(trigcontract, angle_degrees):
     expected_res = float_to_result(math.sin(angle_radians))
     # Since it's an approximation we get close to the expected value, but we
     # can also be off by some allowed error
-    assert abs(res - expected_res) <= ACCURACY, "Testing sin({}) got {} but expected {}".format(
+    error = abs(res - expected_res)
+    assert error <= ACCURACY, "Testing sin({}) got {} but expected {}".format(
         angle_degrees, res, expected_res
     )
+    return error
 
 
 def assert_cos(trigcontract, angle_degrees):
@@ -63,20 +65,28 @@ def assert_cos(trigcontract, angle_degrees):
     expected_res = float_to_result(math.cos(angle_radians))
     # Since it's an approximation we get close to the expected value, but we
     # can also be off by some allowed error
-    assert abs(res - expected_res) <= ACCURACY, "Testing cos({}) got {} but expected {}".format(
+    error = abs(res - expected_res)
+    assert error <= ACCURACY, "Testing cos({}) got {} but expected {}".format(
         angle_degrees, res, expected_res
     )
+    return error
 
 
 def test_sin(chain):
     tig = chain.get_contract('Trigonometry')
 
+    error = 0
     for i in drange(0, 360, 0.25):
-        assert_sin(tig, i)
+        error = max(error, assert_sin(tig, i))
+
+    print("Maximum sin() error was: {}".format(error))
 
 
 def test_cos(chain):
     tig = chain.get_contract('Trigonometry')
 
+    error = 0
     for i in drange(0, 360, 0.25):
-        assert_cos(tig, i)
+        error = max(error, assert_cos(tig, i))
+
+    print("Maximum cos() error was: {}".format(error))
