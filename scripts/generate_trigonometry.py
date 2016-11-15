@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
+from __future__ import division
 import os
 import math
 import re
 import sys
-import decimal
-from __future__ import division
 
 
 def re_replace_constant(string, typename, varname, value):
