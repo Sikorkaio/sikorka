@@ -53,8 +53,8 @@ library Trigonometry {
      * @return An integer containing _width bits of _value starting at the
      *         _offset bit
      */
-    function bits(uint _value, uint _width, uint _bit) internal returns (uint) {
-        return (_value / (2 ** _bit)) & (((2 **  _width)) - 1);
+    function bits(uint _value, uint _width, uint _offset) internal returns (uint) {
+        return (_value / (2 ** _offset)) & (((2 **  _width)) - 1);
     }
 
     function sin_table_lookup(uint index) constant internal returns (uint16) {
