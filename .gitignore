@@ -3,3 +3,5 @@ build/
 .cache/
 migrations/
 tests/__pycache__/
+*.pyc
+contracts/trigonometry_generated.sol

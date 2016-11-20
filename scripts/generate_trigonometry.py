@@ -166,7 +166,7 @@ def gen_sin_table(number_of_bits, table_size):
     return table + '"'
 
 
-def generate_trigonometry(number_of_bits, table_size):
+def generate_trigonometry(number_of_bits, table_size, for_tests):
     print("Generating the sin() lookup table ...")
 
     if number_of_bits % 8 != 0:
@@ -235,10 +235,22 @@ def generate_trigonometry(number_of_bits, table_size):
     )
     lines = re_replace_comments(lines, number_of_bits)
 
+    if for_tests:
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'contracts',
+            'trigonometry_generated.sol'
+        )
+        lines = lines.replace(
+            'library Trigonometry',
+            'library TrigonometryGenerated'
+        )
+
     with open(path, 'w') as f:
         f.write(lines)
+
 
 if __name__ == '__main__':
     number_of_bits = 16
     table_size = 17
-    generate_trigonometry(number_of_bits, table_size)
+    generate_trigonometry(number_of_bits, table_size, for_tests=False)
