@@ -50,6 +50,29 @@ def re_replace_constant_and_type(string, typename, varname, value):
     return new_string
 
 
+def re_replace_vardecl(string, typename, varname):
+    var_re = re.compile(
+        r"( *)(uint.*) +({});".format(varname)
+    )
+    match = var_re.search(string)
+    if not match:
+        print(
+            "ERROR: Could not match RE for '{}' during template generation.".
+            format(varname)
+        )
+        sys.exit(1)
+
+    if match.groups()[1] == typename:
+        # The variable already exists in the source as we want it
+        return string
+
+    new_string = var_re.sub(
+        r"\1{} {};".format(typename, varname),
+        string
+    )
+    return new_string
+
+
 def re_replace_function_params(string, func_name, param_type):
     func_re = re.compile(
         r"( *)function {}\((.*?) *_angle\)".format(func_name)
@@ -188,6 +211,25 @@ def generate_trigonometry(number_of_bits, table_size, for_tests):
         'entry_bytes',
         int(number_of_bits / 8)
     )
+    lines = re_replace_constant(
+        lines,
+        'uint',
+        'INDEX_WIDTH',
+        int(number_of_bits / 4)
+    )
+    lines = re_replace_constant(
+        lines,
+        'uint',
+        'INTERP_WIDTH',
+        int(number_of_bits / 2)
+    )
+    lines = re_replace_constant(
+        lines,
+        'uint',
+        'INDEX_OFFSET',
+        '{} - INDEX_WIDTH'.format(number_of_bits - 4)
+    )
+    lines = re_replace_vardecl(lines, uint_type_name, 'trigint_value')
     lines = re_replace_constant_and_type(
         lines,
         uint_type_name,

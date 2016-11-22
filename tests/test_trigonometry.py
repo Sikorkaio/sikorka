@@ -107,7 +107,9 @@ def trigonometry_handler(chain, number_of_bits, table_size):
     return handler
 
 
-def test_sin(trigonometry_handler):
+@pytest.mark.parametrize('number_of_bits', [16])
+@pytest.mark.parametrize('table_size', [17])
+def test_sin16(trigonometry_handler):
     error = 0
     for i in drange(0, 360, 0.25):
         error = max(error, trigonometry_handler.assert_sin(i))
@@ -115,9 +117,21 @@ def test_sin(trigonometry_handler):
     print("Maximum sin() error was: {}".format(error))
 
 
-def test_cos(trigonometry_handler):
+@pytest.mark.parametrize('number_of_bits', [16])
+@pytest.mark.parametrize('table_size', [17])
+def test_cos16(trigonometry_handler):
     error = 0
     for i in drange(0, 360, 0.25):
         error = max(error, trigonometry_handler.assert_cos(i))
 
     print("Maximum cos() error was: {}".format(error))
+
+
+@pytest.mark.parametrize('number_of_bits', [64])
+@pytest.mark.parametrize('table_size', [17])
+def test_sin64(trigonometry_handler):
+    error = 0
+    for i in drange(0, 360, 0.25):
+        error = max(error, trigonometry_handler.assert_sin(i))
+
+    print("Maximum sin() error was: {}".format(error))
