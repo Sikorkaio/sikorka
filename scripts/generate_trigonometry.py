@@ -163,7 +163,7 @@ def re_replace_comments(string, number_of_bits):
         return string
 
     new_string = comment_re.sub(
-        r'\1* @return The sine result as a number'
+        r'\1* @return The sine result as a number '
         'in the range -{} to {}'.format(
             amplitude,
             amplitude,
@@ -189,9 +189,9 @@ def gen_sin_table(number_of_bits, table_size):
     return table + '"'
 
 
-def generate_trigonometry(number_of_bits, table_size, for_tests):
+def generate_trigonometry(number_of_bits, for_tests):
     print("Generating the sin() lookup table ...")
-
+    table_size = (2 ** int(number_of_bits / 4)) + 1
     if number_of_bits % 8 != 0:
         print("ERROR: Bits should be a multiple of 8")
         sys.exit(1)
@@ -294,5 +294,4 @@ def generate_trigonometry(number_of_bits, table_size, for_tests):
 
 if __name__ == '__main__':
     number_of_bits = 16
-    table_size = 17
-    generate_trigonometry(number_of_bits, table_size, for_tests=False)
+    generate_trigonometry(number_of_bits, for_tests=False)
