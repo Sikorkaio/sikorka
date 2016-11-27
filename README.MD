@@ -58,9 +58,17 @@ Examples of all the above and functions to accomplish them can be seen in `test_
 #### Generating the contract
 
 Inside the repository there is already an implementation where N=14, and the angles
-in a circle are 16384. The maximum error for that is 41 out of an amplitude of 32767.
+in a circle are 16384.
 
-The script `generate_trigonometry.py` allows you to set those parameters and will edit the solidity library for you in order to adjust for the new parameters (Note: WIP)
+The script `generate_trigonometry.py` allows you to set those parameters and will edit the solidity library for you in order to adjust for the new parameters. Due to gas
+constraints on the lookup table the maximum number of bits at the moment is 32.
+
+The maximum error rate is as follows depending on the number of bits.
+
+| Bits     |    Error Rate   |
+|----------|:---------------:|
+| 16       |  0.001251258889 |
+| 32       |  0.000004693866 |
 
 ### SikorkaBasicInterface
 
