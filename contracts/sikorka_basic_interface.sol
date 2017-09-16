@@ -8,15 +8,14 @@
  * @license BSD3
  */
 
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.11;
 
 contract Owned {
     address owner;
 
     /// Allows only the owner to call a function
-    modifier only_owner { if (msg.sender != owner) {
-            throw;
-        }
+    modifier only_owner {
+        require(msg.sender == owner);
         _;
     }
 
@@ -33,73 +32,69 @@ contract Owned {
 contract SikorkaBasicInterface is Owned {
 
     string public name;
-    string public question;
-    bytes32 internal answer_hash;
     uint internal latitude;
     uint internal longitude;
-
-    function distance(
-        uint _latitude1,
-        uint _longitude1,
-        uint _latitude2,
-        uint _longitude2) returns (uint) {
-        return 1; // TODO
-    }
+    // The address corresponding to the detector device for this
+    // contract. Used in verifying proof of presence
+    address public detector;
+    // Number of seconds allowed for proof of presence after the timestamp
+    // of the signed message
+    uint seconds_allowed;
 
     /**
      * Require Proof Of Presence for the function to be executed
-     * @param _latitude      User's current latitude
-     * @param _longitude     User's current longitude
-     * @param _answer        The answer to give to the challenge question
+     * @param message      The signed message containing the timestamp,
+     *                     distance from the detector and address of user
      */
-    modifier need_pop(uint _latitude, uint _longitude, string _answer) {
-        if (sha3(_answer) != answer_hash) {
-            throw;
-        }
-        if (distance(_latitude, _longitude, latitude, longitude) > 1) {
-            throw;
-        }
+    modifier need_pop(bytes message) {
+        address signee;
+        uint timestamp;
+        address user;
+        uint distance;
+
+        (signee, timestamp, user, distance) = decode_message(message);
+
+        // Corresponding detector must have signed the message
+        require(signee == detector);
+        // The message must have been signed for person interacting with the contract
+        require(user == msg.sender);
+        // Timestamp must be in the past
+        require(timestamp < block.timestamp);
+        // Timestamp must be within the seconds_allowed
+        require(block.timestamp - timestamp < seconds_allowed);
+
         _;
     }
 
+    function decode_message(bytes message) internal returns (
+        address signee,
+        uint timestamp,
+        address user,
+        uint distance
+    ) {
+        // TODO
+    }
+
     /**
-     * @param _name           A name to give to the contract
-     * @param _latitude       The latitude part of the geolocation coordinates
-     * @param _longitude      The longitude part of the geolocation coordinates
-     * @param _question       The Proof Of Presence challenge question
-     * @param _answer_hash    A sha3 hash of the answer to the challenge question
+     * @param name             A name to give to the contract
+     * @param detector         The address of the detector this contract is tied to
+     * @param latitude         The latitude part of the geolocation coordinates
+     * @param longitude        The longitude part of the geolocation coordinates
+     * @param seconds_allowed  The number of seconds allowed for proof of presence after
+     *                         the proof has been submitted.
      */
     function SikorkaBasicInterface(
-        string _name,
-        uint _latitude,
-        uint _longitude,
-        string _question,
-        bytes32 _answer_hash
+        string name,
+        address detector,
+        uint latitude,
+        uint longitude,
+        uint seconds_allowed
     ) {
-        name = _name;
-        latitude = _latitude;
-        longitude = _longitude;
-        question = _question;
-        answer_hash = _answer_hash;
+        name = name;
+        latitude = latitude;
+        longitude = longitude;
+        seconds_allowed = seconds_allowed;
+        detector = detector;
     }
 
-    /**
-     * Change the challenge question/answer combination
-     *
-     * @param _question        The new question
-     * @param _answer_hash     The hash to the answer
-     */
-    function change_question(string _question, bytes32 _answer_hash) only_owner {
-        question = _question;
-        answer_hash = _answer_hash;
-    }
-
-    /**
-     * Confirm whether the answer to the challenge question is correct
-     *
-     * @param _answer        The answer to the question
-     */
-    function confirm_answer(string _answer) constant returns (bool) {
-        return sha3(_answer) == answer_hash;
-    }
 }
