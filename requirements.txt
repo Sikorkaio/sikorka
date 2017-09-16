@@ -1,1 +1,8 @@
+gevent
+web3
+pbkdf2
+scrypt
+bitcoin
+py_ecc
+
 populus
