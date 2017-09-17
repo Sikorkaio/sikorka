@@ -28,6 +28,16 @@ contract SikorkaRegistry is Utils {
     Entry[] public sikorka_contracts;
     mapping(address => uint) address_to_index;
 
+    function getContractAddresses() constant returns (address[]) {
+        uint i;
+        address[] memory result;
+        result = new address[](sikorka_contracts.length);
+        for (i = 0; i < sikorka_contracts.length; i++) {
+            result[i] = sikorka_contracts[i].contract_address;
+        }
+        return result;
+    }
+
     /// @notice Register a new sikorka contract with the registry
     /// @param contract_address The address of the deployed sikorka contract
     /// @param latitude         The latitude part of the geolocation coordinates

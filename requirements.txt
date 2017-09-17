@@ -6,3 +6,4 @@ bitcoin
 py_ecc
 
 populus
+ethereum-tester
