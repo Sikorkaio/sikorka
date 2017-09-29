@@ -112,7 +112,7 @@ def number_of_bits():
 def trigonometry_handler(chain, number_of_bits):
     handler = TrigonometryHandler(number_of_bits)
     generate_trigonometry(number_of_bits, for_tests=True)
-    handler.contract = chain.get_contract('TrigonometryGenerated')
+    handler.contract, _ = chain.provider.get_or_deploy_contract('TrigonometryGenerated')
     return handler
 
 
