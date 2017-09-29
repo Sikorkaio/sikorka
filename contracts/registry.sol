@@ -28,7 +28,7 @@ contract SikorkaRegistry is Utils {
     Entry[] public sikorka_contracts;
     mapping(address => uint) address_to_index;
 
-    function getContractAddresses() constant returns (address[]) {
+    function getContractAddresses() public constant returns (address[]) {
         uint i;
         address[] memory result;
         result = new address[](sikorka_contracts.length);
@@ -42,7 +42,7 @@ contract SikorkaRegistry is Utils {
     /// @param contract_address The address of the deployed sikorka contract
     /// @param latitude         The latitude part of the geolocation coordinates
     /// @param longitude        The longitude part of the geolocation coordinates
-    function addContract(address contract_address, uint latitude, uint longitude) {
+    function addContract(address contract_address, uint latitude, uint longitude) public {
         require(contractExists(contract_address));
 
         sikorka_contracts.push(
@@ -60,7 +60,7 @@ contract SikorkaRegistry is Utils {
     }
 
     /// @notice Remove a sikorka contract from the registry
-    function removeContract(address contract_address) {
+    function removeContract(address contract_address) public {
         uint index = address_to_index[contract_address];
         require(index != 0);
 

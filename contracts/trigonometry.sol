@@ -19,7 +19,7 @@
  * @license BSD3
  */
 
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.17;
 
 library Trigonometry {
 
@@ -50,11 +50,11 @@ library Trigonometry {
      * @return An integer containing _width bits of _value starting at the
      *         _offset bit
      */
-    function bits(uint _value, uint _width, uint _offset) internal returns (uint) {
+    function bits(uint _value, uint _width, uint _offset) pure internal returns (uint) {
         return (_value / (2 ** _offset)) & (((2 **  _width)) - 1);
     }
 
-    function sin_table_lookup(uint index) constant internal returns (uint16) {
+    function sin_table_lookup(uint index) pure internal returns (uint16) {
         bytes memory table = sin_table;
         uint offset = (index + 1) * entry_bytes;
         uint16 trigint_value;
@@ -73,7 +73,7 @@ library Trigonometry {
      *               angle units, instead of the standard 360 degrees.
      * @return The sine result as a number in the range -32767 to 32767.
      */
-    function sin(uint16 _angle) returns (int) {
+    function sin(uint16 _angle) public pure returns (int) {
         uint interp = bits(_angle, INTERP_WIDTH, INTERP_OFFSET);
         uint index = bits(_angle, INDEX_WIDTH, INDEX_OFFSET);
 
@@ -107,7 +107,7 @@ library Trigonometry {
      * It functions just like the sin() method but uses the trigonometric
      * identity sin(x + pi/2) = cos(x) to quickly calculate the cos.
      */
-    function cos(uint16 _angle) returns (int) {
+    function cos(uint16 _angle) public pure returns (int) {
         if (_angle > ANGLES_IN_CYCLE - QUADRANT_LOW_MASK) {
             _angle = QUADRANT_LOW_MASK - ANGLES_IN_CYCLE - _angle;
         } else {
