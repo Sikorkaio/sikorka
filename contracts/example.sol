@@ -19,9 +19,9 @@ contract SikorkaExample is SikorkaBasicInterface {
             _latitude,
             _longitude,
             60
-        ) {}
+        ) public {}
 
-    function increase_value() need_pop {
+    function increase_value() public need_pop {
         value += 1;
     }
 }

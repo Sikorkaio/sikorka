@@ -19,12 +19,12 @@ contract Owned {
         _;
     }
 
-    function Owned() {
+    function Owned() public {
         owner = msg.sender;
     }
 
 
-    function change_owner(address _newOwner) only_owner {
+    function change_owner(address _newOwner) public only_owner {
         owner = _newOwner;
     }
 }
@@ -100,7 +100,7 @@ contract SikorkaBasicInterface is Owned {
     ///                 to provide proof of presence
     /// @param duration The duration in seconds for which the proof of presence
     ///                 will be valid.
-    function authorize_user(address user, uint duration) only_detector {
+    function authorize_user(address user, uint duration) public only_detector {
         address_to_start_time[user] = now;
         address_to_duration[user] = duration;
     }
@@ -118,7 +118,7 @@ contract SikorkaBasicInterface is Owned {
         uint _latitude,
         uint _longitude,
         uint _seconds_allowed
-    ) {
+    ) public {
         name = _name;
         latitude = _latitude;
         longitude = _longitude;
