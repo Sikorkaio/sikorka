@@ -40,13 +40,22 @@ contract SikorkaBasicInterface is Owned {
     // Number of seconds allowed for proof of presence after the timestamp
     // of the signed message
     uint seconds_allowed;
+    // Mapping of allowed addresses to time when they were next to the detector
+    mapping(address => uint) address_to_start_time;
+    // Mapping of allowed addresses to duration presence is valid
+    mapping(address => uint) address_to_duration;
 
-    /**
-     * Require Proof Of Presence for the function to be executed
-     * @param message      The signed message containing the timestamp,
-     *                     distance from the detector and address of user
-     */
-    modifier need_pop(bytes message) {
+    modifier only_detector () {
+        require(msg.sender == detector);
+        _;
+    }
+
+    /// Require Proof Of Presence for the function to be executed.
+    /// Version where the detector signs a message for the user offline and the
+    /// user has to submit it himself.
+    /// @param message      The signed message containing the timestamp,
+    ///                    distance from the detector and address of user
+    modifier need_pop_signed(bytes message) {
         address signee;
         uint timestamp;
         address user;
@@ -61,8 +70,18 @@ contract SikorkaBasicInterface is Owned {
         // Timestamp must be in the past
         require(timestamp < block.timestamp);
         // Timestamp must be within the seconds_allowed
-        require(block.timestamp - timestamp < seconds_allowed);
+        require(block.timestamp - timestamp <= seconds_allowed);
 
+        _;
+    }
+
+    /// Require Proof Of Presence for the function to be executed
+    /// Version where the detector should have already sent a message
+    /// whitelisting the user.
+    modifier need_pop() {
+        uint start = address_to_start_time[msg.sender];
+        require(start != 0);
+        require(now - start <= address_to_duration[msg.sender]);
         _;
     }
 
@@ -75,14 +94,24 @@ contract SikorkaBasicInterface is Owned {
         // TODO
     }
 
-    /**
-     * @param name             A name to give to the contract
-     * @param detector         The address of the detector this contract is tied to
-     * @param latitude         The latitude part of the geolocation coordinates
-     * @param longitude        The longitude part of the geolocation coordinates
-     * @param seconds_allowed  The number of seconds allowed for proof of presence after
-     *                         the proof has been submitted.
-     */
+    /// Called by the corresponding detector device to whitelist a user
+    /// who has been detected as present in the vicinity.
+    /// @param user     The address of the user for whom the detector wants
+    ///                 to provide proof of presence
+    /// @param duration The duration in seconds for which the proof of presence
+    ///                 will be valid.
+    function whitelist_user(address user, uint duration) only_detector {
+        address_to_start_time[user] = now;
+        address_to_duration[user] = duration;
+    }
+
+    ///
+    /// @param name             A name to give to the contract
+    /// @param detector         The address of the detector this contract is tied to
+    /// @param latitude         The latitude part of the geolocation coordinates
+    /// @param longitude        The longitude part of the geolocation coordinates
+    /// @param seconds_allowed  The number of seconds allowed for proof of presence after
+    ///                         the proof has been submitted.
     function SikorkaBasicInterface(
         string name,
         address detector,
