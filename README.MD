@@ -18,6 +18,36 @@ In order to run the tests we use [populus](https://github.com/pipermerriam/popul
 
 The repository contains the following contracts:
 
+### SikorkaBasicInterface
+
+The SikorkaBasicInterface is the interface that all Sikorka compliant contracts should implement. It contains functions that allow the contract to interace with the real world via the use of hardware detectors.
+
+When a sikorka contract is deployed it must be linked with a detector provided at construction time.
+
+The detector is a piece of hardware deployed at the location that can verify the presence of the user at the location for a specific amount of time. There are two ways that the detector interfaces with the contract.
+
+#### Direct Detector Interface
+
+The direct method via which the detector can interface with the contract is by sending a transaction to the contract authorizing a user for a specific period of time.
+
+This is done by calling `authorize_user()` and providing the address of the user and the period of time he is authorized to access the contract.
+
+Then finally the user is able to call the functions of the contract that need authorization as long as it's within the time frame provided by the detector.
+
+#### Indirect Detector Interface
+
+The indirect method via which the detector can interface with the contract is by signing a message containing the `address` of the user, the `timestamp` at which the user was authorized and the `duration` for which he was authorized.
+
+The user then submits this message as proof to the contract with each interaction and the contract recovers the signee's address, compares it to the registered detector and if all is well authorizes the user.
+
+Then as with the direct method the user can interact with the contract for the duration of the authorization.
+
+### SikorkaRegistry
+
+The SikorkaRegistry is a registry contract containing the addresses of all Sikorka enabled contracts. When a new sikorka contract is deployed it should be added in the registry along with its latitude and longitude.
+
+Sikorka applications can get the list of contracts from there, insert them into appropriate data structures and search them.
+
 ### Trigonometry
 
 Trigonometry is a basic library for offering the functionality of basic trigonometry functions with both input and output being integer approximated and with the use of a lookup table of the first quadrant of `sin(x)` and of first order linear interpolation.
