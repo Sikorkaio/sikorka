@@ -77,7 +77,7 @@ contract SikorkaBasicInterface is Owned {
 
     /// Require Proof Of Presence for the function to be executed
     /// Version where the detector should have already sent a message
-    /// whitelisting the user.
+    /// authorizing the user for a period of time.
     modifier need_pop() {
         uint start = address_to_start_time[msg.sender];
         require(start != 0);
@@ -94,13 +94,13 @@ contract SikorkaBasicInterface is Owned {
         // TODO
     }
 
-    /// Called by the corresponding detector device to whitelist a user
+    /// Called by the corresponding detector device to authorize a user
     /// who has been detected as present in the vicinity.
     /// @param user     The address of the user for whom the detector wants
     ///                 to provide proof of presence
     /// @param duration The duration in seconds for which the proof of presence
     ///                 will be valid.
-    function whitelist_user(address user, uint duration) only_detector {
+    function authorize_user(address user, uint duration) only_detector {
         address_to_start_time[user] = now;
         address_to_duration[user] = duration;
     }

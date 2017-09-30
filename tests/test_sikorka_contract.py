@@ -131,7 +131,7 @@ def test_sikorka_change_owner(sikorka_interface, owner, accounts):
     assert new_owner == sikorka_interface.call().owner()
 
 
-def test_sikorka_detector_whitelists_users(
+def test_sikorka_detector_authorizes_users(
         sikorka_contract,
         detector, owner,
         accounts,
@@ -146,15 +146,15 @@ def test_sikorka_detector_whitelists_users(
     assert other_user != detector
     assert other_user != owner
 
-    # Detector whitelists a user
-    sikorka_contract.transact({'from': detector}).whitelist_user(user, duration)
+    # Detector authorizes a user
+    sikorka_contract.transact({'from': detector}).authorize_user(user, duration)
 
     # Temporary fix since Populus did not update the location of request manager
     # yet: https://gitter.im/pipermerriam/populus?at=59cf9d7d177fb9fe7e204d6b
     web3._requestManager = web3.manager
     chain.wait.for_block(chain.web3.eth.blockNumber + 5)
 
-    # After a bit, but within the whitelist duration user interacts with the contract
+    # After a bit, but within the authorize duration user interacts with the contract
     assert sikorka_contract.call().value() == 0
     assert sikorka_contract.transact({'from': user}).increase_value()
     assert sikorka_contract.call().value() == 1
@@ -166,8 +166,8 @@ def test_sikorka_detector_whitelists_users(
         sikorka_contract.transact({'from': user}).increase_value()
     assert sikorka_contract.call().value() == 1
 
-    # Detector re-whitelists the same user
-    sikorka_contract.transact({'from': detector}).whitelist_user(user, duration)
+    # Detector re-authorizes the same user
+    sikorka_contract.transact({'from': detector}).authorize_user(user, duration)
 
     # The user is able to re-interact with the contract
     chain.wait.for_block(chain.web3.eth.blockNumber + 5)
@@ -180,8 +180,8 @@ def test_sikorka_detector_whitelists_users(
         sikorka_contract.transact({'from': user}).increase_value()
     assert sikorka_contract.call().value() == 2
 
-    # Finally detector whitelists another user too
-    sikorka_contract.transact({'from': detector}).whitelist_user(other_user, duration)
+    # Finally detector authorizes another user too
+    sikorka_contract.transact({'from': detector}).authorize_user(other_user, duration)
 
     chain.wait.for_block(chain.web3.eth.blockNumber + 5)
     assert sikorka_contract.transact({'from': other_user}).increase_value()
