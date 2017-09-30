@@ -11,7 +11,7 @@
 pragma solidity ^0.4.11;
 
 contract Owned {
-    address owner;
+    address public owner;
 
     /// Allows only the owner to call a function
     modifier only_owner {
@@ -39,7 +39,7 @@ contract SikorkaBasicInterface is Owned {
     address public detector;
     // Number of seconds allowed for proof of presence after the timestamp
     // of the signed message
-    uint seconds_allowed;
+    uint public seconds_allowed;
     // Mapping of allowed addresses to time when they were next to the detector
     mapping(address => uint) address_to_start_time;
     // Mapping of allowed addresses to duration presence is valid
@@ -106,24 +106,24 @@ contract SikorkaBasicInterface is Owned {
     }
 
     ///
-    /// @param name             A name to give to the contract
-    /// @param detector         The address of the detector this contract is tied to
-    /// @param latitude         The latitude part of the geolocation coordinates
-    /// @param longitude        The longitude part of the geolocation coordinates
-    /// @param seconds_allowed  The number of seconds allowed for proof of presence after
-    ///                         the proof has been submitted.
+    /// @param _name             A name to give to the contract
+    /// @param _detector         The address of the detector this contract is tied to
+    /// @param _latitude         The latitude part of the geolocation coordinates
+    /// @param _longitude        The longitude part of the geolocation coordinates
+    /// @param _seconds_allowed  The number of seconds allowed for proof of presence after
+    ///                          the proof has been submitted.
     function SikorkaBasicInterface(
-        string name,
-        address detector,
-        uint latitude,
-        uint longitude,
-        uint seconds_allowed
+        string _name,
+        address _detector,
+        uint _latitude,
+        uint _longitude,
+        uint _seconds_allowed
     ) {
-        name = name;
-        latitude = latitude;
-        longitude = longitude;
-        seconds_allowed = seconds_allowed;
-        detector = detector;
+        name = _name;
+        latitude = _latitude;
+        longitude = _longitude;
+        seconds_allowed = _seconds_allowed;
+        detector = _detector;
     }
 
 }
