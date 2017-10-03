@@ -38,6 +38,17 @@ contract SikorkaRegistry is Utils {
         return result;
     }
 
+    function getContractCoordinates() public constant returns (uint[]) {
+        uint i;
+        uint[] memory result;
+        result = new uint[](sikorka_contracts.length * 2);
+        for (i = 0; i < sikorka_contracts.length; i++) {
+            result[i] = sikorka_contracts[i].latitude;
+            result[i + 1] = sikorka_contracts[i].longitude;
+        }
+        return result;
+    }
+
     /// @notice Register a new sikorka contract with the registry
     /// @param contract_address The address of the deployed sikorka contract
     /// @param latitude         The latitude part of the geolocation coordinates
