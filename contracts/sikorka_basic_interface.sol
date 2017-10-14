@@ -10,6 +10,8 @@
 
 pragma solidity ^0.4.11;
 
+import "./registry.sol";
+
 contract Owned {
     address public owner;
 
@@ -31,6 +33,9 @@ contract Owned {
 
 contract SikorkaBasicInterface is Owned {
 
+    string public constant version = "0.1.0";
+    // Test Registry address in Ropsten. TODO: Use ENS.
+    address public constant registry = 0xC0e1Eedee8eAB99966a11c2c10cB6aAe4846CDA7;
     string public name;
     uint internal latitude;
     uint internal longitude;
@@ -124,6 +129,9 @@ contract SikorkaBasicInterface is Owned {
         longitude = _longitude;
         seconds_allowed = _seconds_allowed;
         detector = _detector;
+
+        SikorkaRegistry r = SikorkaRegistry(registry);
+        r.addContract(address(this), _latitude, _longitude);
     }
 
 }
