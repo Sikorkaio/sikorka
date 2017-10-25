@@ -5,9 +5,10 @@ import sys
 import click
 import signal
 
-from utils import address_decoder, address_encoder
-from accounts import AccountManager
-from service import Sikorka
+from sikorka.utils import address_decoder, address_encoder
+from sikorka.accounts import AccountManager, Account
+from sikorka.service import Sikorka
+from sikorka.api.rest import APIServer
 
 
 SIKORKA_VERSION = '0.0.1'
@@ -48,6 +49,16 @@ OPTIONS = [
         ' accepts a protocol prefix (http:// or https://) with optional port',
         default='127.0.0.1:8545',  # geth default jsonrpc port
         type=str,
+    ),
+    click.option(
+        '--keyfile',
+        help='path to a particular keyfile to use',
+        type=click.Path(exists=True),
+    ),
+    click.option(
+        '--passfile',
+        help='path to a particular file containing a password to use for the key',
+        type=click.Path(exists=True),
     ),
 ]
 
@@ -98,7 +109,7 @@ def prompt_account(address_hex, keystore_path, password_file):
         password = password_file.read().splitlines()[0]
     if password:
         try:
-            privatekey_bin = accmgr.get_privkey(address_hex, password)
+            unlocked_account = accmgr.get_privkey(address_hex, password)
         except ValueError:
             # ValueError exception raised if the password is incorrect
             print('Incorrect password for {} in file. Aborting ...'.format(
@@ -109,7 +120,7 @@ def prompt_account(address_hex, keystore_path, password_file):
         unlock_tries = 3
         while True:
             try:
-                privatekey_bin = accmgr.get_privkey(address_hex)
+                unlocked_account = accmgr.get_privkey(address_hex)
                 break
             except ValueError:
                 # ValueError exception raised if the password is incorrect
@@ -127,15 +138,18 @@ def prompt_account(address_hex, keystore_path, password_file):
                 )
                 unlock_tries -= 1
 
-    return address_hex, privatekey_bin
+    return unlocked_account
 
 
 @options
 @click.command()
-def app(address, eth_rpc_endpoint, keystore_path):
+def app(address, eth_rpc_endpoint, keystore_path, keyfile, passfile):
     address_hex = address_encoder(address) if address else None
-    address_hex, privatekey_bin = prompt_account(address_hex, keystore_path, None)
-    sikorka = Sikorka(eth_rpc_endpoint, privatekey_bin)
+    if keyfile is not None and passfile is not None:
+        unlocked_account = Account(keyfile, passfile)
+    else:
+        unlocked_account = prompt_account(address_hex, keystore_path, passfile)
+    sikorka = Sikorka(eth_rpc_endpoint, unlocked_account)
     return sikorka
 
 
@@ -146,7 +160,9 @@ def run(ctx, **kwargs):
     if ctx.invoked_subcommand is None:
         print('Sikorka desktop client, version {}!'.format(SIKORKA_VERSION))
 
-        app_ = ctx.invoke(app, **kwargs)
+        sikorka_app = ctx.invoke(app, **kwargs)
+        sikorka_rest_server = APIServer(sikorka_app, None, kwargs['eth_rpc_endpoint'])
+        sikorka_rest_server.start('localhost', 7879)
         # wait for interrupt
         event = gevent.event.Event()
         gevent.signal(signal.SIGQUIT, event.set)
@@ -155,3 +171,4 @@ def run(ctx, **kwargs):
         event.wait()
 
         # Here put the eventual app shutdown process
+        sikorka_rest_server.stop()
