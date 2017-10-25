@@ -62,20 +62,19 @@ contract SikorkaBasicInterface is Owned {
     ///                    distance from the detector and address of user
     modifier need_pop_signed(bytes message) {
         address signee;
-        uint timestamp;
+        uint64 time;
         address user;
-        uint distance;
 
-        (signee, timestamp, user, distance) = decode_message(message);
+        (signee, user, time) = decode_message(message);
 
         // Corresponding detector must have signed the message
-        require(signee == detector);
+        // require(signee == detector);
         // The message must have been signed for person interacting with the contract
         require(user == msg.sender);
         // Timestamp must be in the past
-        require(timestamp < block.timestamp);
+        require(time < block.timestamp);
         // Timestamp must be within the seconds_allowed
-        require(block.timestamp - timestamp <= seconds_allowed);
+        require(block.timestamp - time <= seconds_allowed);
 
         _;
     }
@@ -90,13 +89,37 @@ contract SikorkaBasicInterface is Owned {
         _;
     }
 
-    function decode_message(bytes message) internal returns (
+    function decode_message(bytes message) view internal returns (
         address signee,
-        uint timestamp,
         address user,
-        uint distance
+        uint64 time
     ) {
-        // TODO
+        uint signature_start;
+        bytes memory signature;
+        bytes memory data;
+        uint length = message.length;
+
+        signature_start = length - 65;
+        signature = slice(message, signature_start, length);
+        data = slice(message, 0, signature_start);
+
+        var (r, s, v) = signature_split(signature);
+        bytes32 data_hash = keccak256(data);
+        signee = ecrecover(data_hash, v, r, s);
+
+        require(signee == detector);
+
+        (user, time) = decode_data(data);
+    }
+
+    function decode_data(bytes data) pure internal returns (
+        address user,
+        uint64 time
+    ) {
+        assembly {
+            user := mload(add(data, 20))
+            time := mload(add(data, 28))
+        }
     }
 
     /// Called by the corresponding detector device to authorize a user
@@ -132,6 +155,38 @@ contract SikorkaBasicInterface is Owned {
 
         SikorkaRegistry r = SikorkaRegistry(registry);
         r.addContract(address(this), _latitude, _longitude);
+    }
+
+    function slice(bytes a, uint start, uint end) pure internal returns (bytes n) {
+        require(a.length >= end);
+        require(start >= 0);
+
+        n = new bytes(end-start);
+        for (uint i = start; i < end; i++) {
+            n[i-start] = a[i];
+        }
+    }
+
+    function signature_split(bytes signature)
+        pure
+        internal
+        returns (bytes32 r, bytes32 s, uint8 v)
+    {
+        // The signature format is a compact form of:
+        //   {bytes32 r}{bytes32 s}{uint8 v}
+        // Compact means, uint8 is not padded to 32 bytes.
+        assembly {
+            r := mload(add(signature, 32))
+            s := mload(add(signature, 64))
+            // Here we are loading the last 32 bytes, including 31 bytes
+            // of 's'. There is no 'mload8' to do this.
+            //
+            // 'byte' is not working due to the Solidity parser, so lets
+            // use the second best option, 'and'
+            v := and(mload(add(signature, 65)), 0xff)
+        }
+
+        require(v == 27 || v == 28);
     }
 
 }
