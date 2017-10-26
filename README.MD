@@ -84,9 +84,7 @@ In order to run the tests we use [populus](https://github.com/pipermerriam/popul
 
 - Run `pip install -r requirements.txt`
 
-- Run `populus compile`
-
-- And now run the tests by `pytest tests/`
+- And now from the root directory run the tests by `pytest tests/ --populus-project .`
 
 ## Smart Contracts
 
