@@ -1,5 +1,6 @@
 import pytest
 from ethereum.tester import TransactionFailed
+from utils import addr_equal
 
 
 @pytest.fixture
@@ -68,9 +69,12 @@ def sikorka_interface(
         latitude,
         longitude,
         seconds_allowed):
+    registry, _ = chain.provider.deploy_contract('SikorkaRegistry')
     factory = chain.provider.get_contract_factory('SikorkaBasicInterface')
+    # import pdb
+    # pdb.set_trace()
     sikorka = create_contract(factory, [
-        name, detector, latitude, longitude, seconds_allowed
+        name, detector, latitude, longitude, seconds_allowed, registry.address
     ])
 
     return sikorka
@@ -84,9 +88,10 @@ def sikorka_contract(
         detector,
         latitude,
         longitude):
+    registry, _ = chain.provider.deploy_contract('SikorkaRegistry')
     factory = chain.provider.get_contract_factory('SikorkaExample')
     sikorka = create_contract(factory, [
-        detector, latitude, longitude
+        detector, latitude, longitude, registry.address
     ])
 
     return sikorka
@@ -95,9 +100,10 @@ def sikorka_contract(
 @pytest.fixture()
 def create_sikorka_contract(chain, web3, create_contract):
     def get(name, detector, latitude, longitude, seconds_allowed):
+        registry, _ = chain.provider.deploy_contract('SikorkaRegistry')
         factory = chain.provider.get_contract_factory('SikorkaExample')
         sikorka = create_contract(factory, [
-            detector, latitude, longitude
+            detector, latitude, longitude, registry.address
         ])
 
         return sikorka
@@ -113,14 +119,14 @@ def test_sikorka_construction(
         longitude,
         seconds_allowed):
 
-    assert owner == sikorka_interface.call().owner().lower()
-    assert detector == sikorka_interface.call().detector().lower()
+    assert addr_equal(owner, sikorka_interface.call().owner())
+    assert addr_equal(detector, sikorka_interface.call().detector())
     assert name == sikorka_interface.call().name()
     assert seconds_allowed == sikorka_interface.call().seconds_allowed()
 
 
 def test_sikorka_change_owner(sikorka_interface, owner, accounts):
-    assert owner == sikorka_interface.call().owner().lower()
+    assert addr_equal(owner, sikorka_interface.call().owner())
     new_owner = accounts[3]
 
     # only owner should be able to change the owner
@@ -128,7 +134,7 @@ def test_sikorka_change_owner(sikorka_interface, owner, accounts):
         sikorka_interface.transact({'from': new_owner}).change_owner(new_owner)
 
     assert sikorka_interface.transact({'from': owner}).change_owner(new_owner)
-    assert new_owner == sikorka_interface.call().owner().lower()
+    assert addr_equal(new_owner, sikorka_interface.call().owner())
 
 
 def test_sikorka_detector_authorizes_users(

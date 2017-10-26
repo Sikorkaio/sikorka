@@ -54,8 +54,6 @@ contract SikorkaRegistry is Utils {
     /// @param latitude         The latitude part of the geolocation coordinates
     /// @param longitude        The longitude part of the geolocation coordinates
     function addContract(address contract_address, uint latitude, uint longitude) public {
-        require(contractExists(contract_address));
-
         sikorka_contracts.push(
             Entry({
                 contract_address: contract_address,

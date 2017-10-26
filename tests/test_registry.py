@@ -22,14 +22,12 @@ def test_registry_add_contract(chain):
     for entry in entries:
         cc.transact().addContract(str(entry[0]), entry[1], entry[2])
 
-    queried_contracts = cc.call().getContractAddresses()
-    import pdb
-    pdb.set_trace()
+    queried_contracts = [x.lower() for x in cc.call().getContractAddresses()]
     assert all(entry[0] in queried_contracts for entry in entries)
 
 
-def test_registry_add_non_contract_address(chain):
-    """Test that adding a non-contract address fails"""
+def test_registry_remove_nonexistent_contract(chain):
+    """Test that removing a non-contract address fails"""
     c, _ = chain.provider.get_or_deploy_contract('SikorkaRegistry')
     with pytest.raises(TransactionFailed):
-        c.transact().addContract("0xacb35c909b156feeace5c58e9b6b7162a4fa2beb", 10, 100)
+        c.transact().removeContract("0xacb35c909b156feeace5c58e9b6b7162a4fa2beb")

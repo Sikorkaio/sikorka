@@ -12,13 +12,19 @@ contract SikorkaExample is SikorkaBasicInterface {
 
     uint public value;
 
-    function SikorkaExample(address _detector, uint _latitude, uint _longitude)
+    function SikorkaExample(
+        address _detector,
+        uint _latitude,
+        uint _longitude,
+        address registry_address
+    )
         SikorkaBasicInterface(
             "Example",
             _detector,
             _latitude,
             _longitude,
-            60
+            60,
+            registry_address
         ) public {}
 
     function increase_value() public need_pop {

@@ -34,8 +34,6 @@ contract Owned {
 contract SikorkaBasicInterface is Owned {
 
     string public constant version = "0.1.0";
-    // Test Registry address in Ropsten. TODO: Use ENS.
-    address public constant registry = 0xC0e1Eedee8eAB99966a11c2c10cB6aAe4846CDA7;
     string public name;
     uint internal latitude;
     uint internal longitude;
@@ -145,7 +143,8 @@ contract SikorkaBasicInterface is Owned {
         address _detector,
         uint _latitude,
         uint _longitude,
-        uint _seconds_allowed
+        uint _seconds_allowed,
+        address registry_address
     ) public {
         name = _name;
         latitude = _latitude;
@@ -153,7 +152,7 @@ contract SikorkaBasicInterface is Owned {
         seconds_allowed = _seconds_allowed;
         detector = _detector;
 
-        SikorkaRegistry r = SikorkaRegistry(registry);
+        SikorkaRegistry r = SikorkaRegistry(registry_address);
         r.addContract(address(this), _latitude, _longitude);
     }
 
