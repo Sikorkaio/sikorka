@@ -1,4 +1,6 @@
+import time
 from web3 import Web3, HTTPProvider, IPCProvider
+from utils import address_encoder
 
 
 class Sikorka(object):
@@ -11,5 +13,9 @@ class Sikorka(object):
 
         self.account = unlocked_acc
 
-    def get_our_address(self):
+    def address(self):
         return self.account.address()
+
+    def sign_message_as_detector(self, user_address_bin):
+        user_address = address_encoder(user_address_bin)
+        return self.account.create_signed_message(user_address, int(time.time()))

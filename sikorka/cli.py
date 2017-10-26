@@ -9,6 +9,7 @@ from sikorka.utils import address_decoder, address_encoder
 from sikorka.accounts import AccountManager, Account
 from sikorka.service import Sikorka
 from sikorka.api.rest import APIServer
+from sikorka.api.api import RestAPI
 
 
 SIKORKA_VERSION = '0.0.1'
@@ -161,7 +162,8 @@ def run(ctx, **kwargs):
         print('Sikorka desktop client, version {}!'.format(SIKORKA_VERSION))
 
         sikorka_app = ctx.invoke(app, **kwargs)
-        sikorka_rest_server = APIServer(sikorka_app, None, kwargs['eth_rpc_endpoint'])
+        sikorka_api = RestAPI(sikorka_app)
+        sikorka_rest_server = APIServer(sikorka_api, None, kwargs['eth_rpc_endpoint'])
         sikorka_rest_server.start('localhost', 7879)
         # wait for interrupt
         event = gevent.event.Event()

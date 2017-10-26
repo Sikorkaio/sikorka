@@ -1,4 +1,4 @@
-# Some of these functions are taken from pyethapp/pyethereum
+import binascii
 
 
 def decode_hex(s):
@@ -33,14 +33,15 @@ def data_decoder(data):
         raise ValueError('Invalid data hex encoding', data[2:])
 
 
-def address_decoder(data):
-    """Decode an address from hex with 0x prefix to 20 bytes."""
-    addr = data_decoder(data)
-    if len(addr) not in (20, 0):
-        raise ValueError('Addresses must be 20 or 0 bytes long')
+def address_decoder(addr):
+    if addr[:2] == '0x':
+        addr = addr[2:]
+
+    addr = binascii.unhexlify(addr)
+    assert len(addr) in (20, 0)
     return addr
 
 
 def address_encoder(address):
     assert len(address) in (20, 0)
-    return '0x' + encode_hex(address)
+    return '0x' + binascii.hexlify(address).decode('utf-8')

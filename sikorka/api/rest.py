@@ -1,5 +1,9 @@
 from sikorka.api.encoding import HexAddressConverter
-from sikorka.api.resources import create_blueprint, AddressResource
+from sikorka.api.resources import (
+    create_blueprint,
+    AddressResource,
+    DetectorSignResource
+)
 from flask import Flask, make_response, url_for, send_from_directory, request
 from flask.json import jsonify
 from flask_restful import Api, abort
@@ -41,14 +45,14 @@ class APIServer(object):
         self.rest_api = rest_api
         self.blueprint = create_blueprint()
         # TODO: Make configurable version
-        self.rest_api_version = 1
-        if self.rest_api_version == 1:
+        self.rest_api.version = 1
+        if self.rest_api.version == 1:
             self.flask_api_context = Api(
                 self.blueprint,
                 prefix=self._api_prefix,
             )
         else:
-            raise ValueError('Invalid api version: {}'.format(self.rest_api_version))
+            raise ValueError('Invalid api version: {}'.format(self.rest_api.version))
 
         self.flask_app = Flask(__name__)
         if cors_domain_list:
@@ -58,8 +62,12 @@ class APIServer(object):
         self.flask_app.register_blueprint(self.blueprint)
 
     def _add_default_resources(self):
-
         self.add_resource(AddressResource, '/address')
+        self.add_resource(
+            DetectorSignResource,
+            '/detector_sign/<hexaddress:user_address>'
+        )
+
     def _register_type_converters(self, additional_mapping=None):
         # an additional mapping concats to class-mapping and will overwrite existing keys
         if additional_mapping:
@@ -77,10 +85,10 @@ class APIServer(object):
             resource_class_kwargs={'rest_api_object': self.rest_api}
         )
 
-    def run(self, host='127.0.0.1', port=5001, **kwargs):
+    def run(self, host='127.0.0.1', port=5011, **kwargs):
         self.flask_app.run(host=host, port=port, **kwargs)
 
-    def start(self, host='127.0.0.1', port=5001):
+    def start(self, host='127.0.0.1', port=5011):
         self.wsgiserver = WSGIServer((host, port), self.flask_app, log=log, error_log=log)
         self.wsgiserver.start()
 

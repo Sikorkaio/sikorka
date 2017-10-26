@@ -19,3 +19,9 @@ class AddressResource(BaseResource):
 
     def get(self):
         return self.rest_api.get_our_address()
+
+
+class DetectorSignResource(BaseResource):
+
+    def get(self, user_address):
+        return self.rest_api.detector_sign(user_address)

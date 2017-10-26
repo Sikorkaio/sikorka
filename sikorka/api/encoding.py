@@ -2,6 +2,7 @@ from werkzeug.routing import (
     BaseConverter,
     ValidationError,
 )
+import binascii
 from sikorka.utils import (
     address_encoder
 )
@@ -13,7 +14,7 @@ class HexAddressConverter(BaseConverter):
             raise ValidationError()
 
         try:
-            value = value[2:].decode('hex')
+            value = binascii.unhexlify(value[2:])
         except TypeError:
             raise ValidationError()
 
