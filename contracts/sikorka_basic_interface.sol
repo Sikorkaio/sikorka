@@ -53,16 +53,50 @@ contract SikorkaBasicInterface is Owned {
         _;
     }
 
-    /// Require Proof Of Presence for the function to be executed.
-    /// Version where the detector signs a message for the user offline and the
-    /// user has to submit it himself.
-    /// @param message      The signed message containing the timestamp,
-    ///                    distance from the detector and address of user
-    modifier need_pop_signed(bytes message) {
-        address signee;
-        uint64 time;
-        address user;
+    /// Require Proof Of Presence for the function to be executed
+    /// Version where the detector should have already sent a message
+    /// authorizing the user for a period of time.
+    modifier proof_of_presence(bytes message) {
+        check_proof_of_presence(message);
+        _;
+    }
 
+    function check_proof_of_presence(bytes message) view public {
+        if (message.length == 0) {
+            // detector should have authorized the user
+            detector_direct_authorization();
+        } else if (message[0] == 1) {
+            detector_signed_message(message);
+        } else if (message[1] == 2) {
+            //TODO: Simple protocol of providing locations on your own
+        } else {
+            require(false); // unrecognized protocol
+        }
+    }
+
+    function wtf(bytes message) returns (uint64) {
+        address signee;
+        address user;
+        uint64 time;
+        (signee, user, time) = decode_message(message);
+        return time;
+    }
+
+    function wtf2() returns (uint) {
+        return block.timestamp;
+    }
+
+
+    function detector_direct_authorization() view public {
+        uint start = address_to_start_time[msg.sender];
+        require(start != 0);
+        require(now - start <= address_to_duration[msg.sender]);
+    }
+
+    function detector_signed_message(bytes message) view public {
+        address signee;
+        address user;
+        uint64 time;
         (signee, user, time) = decode_message(message);
 
         // Corresponding detector must have signed the message
@@ -73,18 +107,6 @@ contract SikorkaBasicInterface is Owned {
         require(time < block.timestamp);
         // Timestamp must be within the seconds_allowed
         require(block.timestamp - time <= seconds_allowed);
-
-        _;
-    }
-
-    /// Require Proof Of Presence for the function to be executed
-    /// Version where the detector should have already sent a message
-    /// authorizing the user for a period of time.
-    modifier need_pop() {
-        uint start = address_to_start_time[msg.sender];
-        require(start != 0);
-        require(now - start <= address_to_duration[msg.sender]);
-        _;
     }
 
     function decode_message(bytes message) view internal returns (
@@ -99,7 +121,7 @@ contract SikorkaBasicInterface is Owned {
 
         signature_start = length - 65;
         signature = slice(message, signature_start, length);
-        data = slice(message, 0, signature_start);
+        data = slice(message, 1, signature_start);
 
         var (r, s, v) = signature_split(signature);
         bytes32 data_hash = keccak256(data);

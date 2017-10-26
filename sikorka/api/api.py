@@ -25,7 +25,7 @@ class RestAPI(object):
         )
 
     def detector_sign(self, user_address_bin):
+        """Returns the required signed message as hexstring in a dict reply"""
         signed_bytes = self.sikorka.sign_message_as_detector(user_address_bin)
-        return api_response(
-            result=dict(message=hexlify(signed_bytes).decode('utf-8'))
-        )
+        signed_hex = hexlify(signed_bytes).decode('utf-8')
+        return api_response(result=dict(message=signed_hex))
