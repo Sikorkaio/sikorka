@@ -35,8 +35,8 @@ contract SikorkaBasicInterface is Owned {
 
     string public constant version = "0.1.0";
     string public name;
-    uint internal latitude;
-    uint internal longitude;
+    int internal latitude;
+    int internal longitude;
     // The address corresponding to the detector device for this
     // contract. Used in verifying proof of presence
     address public detector;
@@ -68,29 +68,48 @@ contract SikorkaBasicInterface is Owned {
         } else if (message[0] == 1) {
             detector_signed_message(message);
         } else if (message[1] == 2) {
-            //TODO: Simple protocol of providing locations on your own
+            // only allow this scenario if the contract was deployed without a detector
+            require(detector == 0);
+            simple_presence_check(message);
         } else {
             require(false); // unrecognized protocol
         }
     }
 
-    function wtf(bytes message) returns (uint64) {
-        address signee;
-        address user;
-        uint64 time;
-        (signee, user, time) = decode_message(message);
-        return time;
-    }
-
-    function wtf2() returns (uint) {
-        return block.timestamp;
-    }
-
-
     function detector_direct_authorization() view public {
         uint start = address_to_start_time[msg.sender];
         require(start != 0);
         require(now - start <= address_to_duration[msg.sender]);
+    }
+
+    function simple_presence_check(bytes message) public {
+        int g_latitude;
+        int g_longitude;
+        assembly {
+            // skip first byte which is the proof type identifier
+            g_latitude := mload(add(message, 33))
+            g_longitude := mload(add(message, 65))
+        }
+
+        // TODO proper distance check for coordinates, this is rather idiotic
+        int latitude_diff;
+        int longitude_diff;
+        if (g_latitude >= latitude) {
+            latitude_diff = g_latitude - latitude;
+        } else {
+            latitude_diff = latitude - g_latitude;
+        }
+        assert(latitude_diff >= 0);
+
+        if (g_longitude >= longitude) {
+            longitude_diff = g_longitude - longitude;
+        } else {
+            longitude_diff = longitude - g_longitude;
+        }
+        assert(longitude_diff >= 0);
+
+        // user must be close to the contract
+        require(latitude_diff > 1000 || longitude_diff > 1000);
     }
 
     function detector_signed_message(bytes message) view public {
