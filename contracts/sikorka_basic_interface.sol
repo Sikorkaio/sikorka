@@ -182,8 +182,8 @@ contract SikorkaBasicInterface is Owned {
     function SikorkaBasicInterface(
         string _name,
         address _detector,
-        uint _latitude,
-        uint _longitude,
+        int _latitude,
+        int _longitude,
         uint _seconds_allowed,
         address registry_address
     ) public {

@@ -14,8 +14,8 @@ contract SikorkaExample is SikorkaBasicInterface {
 
     function SikorkaExample(
         address _detector,
-        uint _latitude,
-        uint _longitude,
+        int _latitude,
+        int _longitude,
         uint _seconds_allowed,
         address _registry_address
     )

@@ -16,13 +16,13 @@ import "./utils.sol";
 
 contract SikorkaRegistry is Utils {
 
-    event ContractAdded(address contract_address, uint latitude, uint longitude);
+    event ContractAdded(address contract_address, int latitude, int longitude);
     event ContractRemoved(address contract_address);
 
     struct Entry {
         address contract_address;
-        uint latitude;
-        uint longitude;
+        int latitude;
+        int longitude;
     }
 
     Entry[] public sikorka_contracts;
@@ -38,10 +38,10 @@ contract SikorkaRegistry is Utils {
         return result;
     }
 
-    function getContractCoordinates() public constant returns (uint[]) {
+    function getContractCoordinates() public constant returns (int[]) {
         uint i;
-        uint[] memory result;
-        result = new uint[](sikorka_contracts.length * 2);
+        int[] memory result;
+        result = new int[](sikorka_contracts.length * 2);
         for (i = 0; i < sikorka_contracts.length; i++) {
             result[i] = sikorka_contracts[i].latitude;
             result[i + 1] = sikorka_contracts[i].longitude;
@@ -53,7 +53,7 @@ contract SikorkaRegistry is Utils {
     /// @param contract_address The address of the deployed sikorka contract
     /// @param latitude         The latitude part of the geolocation coordinates
     /// @param longitude        The longitude part of the geolocation coordinates
-    function addContract(address contract_address, uint latitude, uint longitude) public {
+    function addContract(address contract_address, int latitude, int longitude) public {
         sikorka_contracts.push(
             Entry({
                 contract_address: contract_address,

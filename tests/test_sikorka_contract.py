@@ -98,7 +98,7 @@ def sikorka_interface(
     registry, _ = chain.provider.deploy_contract('SikorkaRegistry')
     factory = chain.provider.get_contract_factory('SikorkaBasicInterface')
     sikorka = create_contract(factory, [
-        name, detector, latitude, longitude, seconds_allowed(), registry.address
+        name, detector, latitude, longitude, seconds_allowed, registry.address
     ])
 
     return sikorka
@@ -259,7 +259,7 @@ def test_sikorka_detector_signs_message(
     # When more than the duration has passed the user can no longer interact
     # with the contract
     gevent.sleep(5)
-    chain.wait.for_block(chain.web3.eth.blockNumber + 1)
+    chain.wait.for_block(chain.web3.eth.blockNumber + 15)
     with pytest.raises(TransactionFailed):
         sikorka_contract.transact({'from': user}).increase_value(signed_msg)
     assert sikorka_contract.call().value() == 1
