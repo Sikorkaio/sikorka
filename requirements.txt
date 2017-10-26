@@ -1,3 +1,4 @@
+pybluez
 gevent
 web3
 populus

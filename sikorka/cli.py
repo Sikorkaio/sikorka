@@ -10,6 +10,7 @@ from sikorka.accounts import AccountManager, Account
 from sikorka.service import Sikorka
 from sikorka.api.rest import APIServer
 from sikorka.api.api import RestAPI
+from sikorka.btserver import run_bt_server
 
 
 SIKORKA_VERSION = '0.0.1'
@@ -67,6 +68,21 @@ OPTIONS = [
         default=5011,
         type=int,
     ),
+    click.option(
+        '--rpc/--no-rpc',
+        default=True,
+        help='Turn the Rest API rpc on/off'
+    ),
+    click.option(
+        '--bluetooth-server/--no-bluetooth-server',
+        default=False,
+        help='Turn the Bluetooth server API on/off'
+    ),
+    click.option(
+        '--bluetooth-device-name',
+        default='Mock Detector',
+        help='Device name for bluetooth server'
+    )
 ]
 
 
@@ -163,22 +179,34 @@ def app(address, eth_rpc_endpoint, keystore_path, keyfile, passfile, **kwargs):
 @click.group(invoke_without_command=True)
 @options
 @click.pass_context
-def run(ctx, **kwargs):
+def run(ctx, rpc, bluetooth_server, **kwargs):
     if ctx.invoked_subcommand is None:
         print('Sikorka desktop client, version {}!'.format(SIKORKA_VERSION))
 
-        # import pdb
-        # pdb.set_trace()
+        end_event = gevent.event.Event()
         sikorka_app = ctx.invoke(app, **kwargs)
         sikorka_api = RestAPI(sikorka_app)
-        sikorka_rest_server = APIServer(sikorka_api, None, kwargs['eth_rpc_endpoint'])
-        sikorka_rest_server.start('localhost', kwargs['api_port'])
-        # wait for interrupt
-        event = gevent.event.Event()
-        gevent.signal(signal.SIGQUIT, event.set)
-        gevent.signal(signal.SIGTERM, event.set)
-        gevent.signal(signal.SIGINT, event.set)
-        event.wait()
+        if rpc:
+            sikorka_rest_server = APIServer(sikorka_api, None, kwargs['eth_rpc_endpoint'])
+            sikorka_rest_server.start('localhost', kwargs['api_port'])
 
-        # Here put the eventual app shutdown process
-        sikorka_rest_server.stop()
+        if bluetooth_server:
+            bt_server = gevent.spawn(
+                run_bt_server,
+                end_event,
+                kwargs['bluetooth_device_name'],
+                sikorka_app.account
+            )
+
+        # wait for interrupt
+        gevent.signal(signal.SIGQUIT, end_event.set)
+        gevent.signal(signal.SIGTERM, end_event.set)
+        gevent.signal(signal.SIGINT, end_event.set)
+        end_event.wait()
+
+        if bluetooth_server:
+            print("Coming here 3")
+            bt_server.join()
+
+        if rpc:
+            sikorka_rest_server.stop()
