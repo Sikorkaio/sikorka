@@ -27,4 +27,9 @@ setup(
         'Development Status :: 1 - Planning',
         'Topic :: Utilities',
     ],
+    entry_points={
+        'console_scripts': [
+            'sikorka = sikorka.__main__:main'
+        ]
+    }
 )

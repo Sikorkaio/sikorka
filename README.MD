@@ -1,6 +1,80 @@
-# Sikorka Smart Contracts
+# Sikorka App and smart contracts
 
-This repository contains the smart contracts for the [Sikorka](http://sikorka.io/) project.
+This repository contains a desktop app and the smart contracts for the [Sikorka](http://sikorka.io/) project.
+
+## Sikorka app
+
+
+### Installation
+
+Create a virtualenvironment and do `pip install -e .`
+
+Then you can call the sikorka executable via `sikorka`. For a list of all commands
+write `sikorka --help`.
+
+### Rest API
+
+Sikorka runs a rest api server underneath so that users can communicate with it. The Rest API server is on by default.
+
+Assuming a server running on localhost on port 5011 we have the following endpoints:
+
+#### Get address associated with the client
+
+Use a `GET http://localhost:5011/api/1/address` to get the address associated with the client.
+
+#### Request signed detector message
+
+Use `GET http://localhost:5011/api/1/detector_sign/0x8bed7fd11ef2efa1899f751a8d422c1fd028610c`
+
+where you should replace `0x8bed7fd11ef2efa1899f751a8d422c1fd028610c` with the address of the user you want to get a detector signed message for.
+
+### Running A Bluetooth Server
+
+Sikorka can also run a bluetooth server with its own API.
+
+Add the argument `--bluetooth-server`.
+
+We need a Bluetooth enabled linux system with python 3.
+
+Make sure bluetooth is activated and running -- guide may vary depending on your system -- for Arch check [here](https://wiki.archlinux.org/index.php/Bluetooth).
+
+```
+systemctl start bluetooth.service
+```
+
+If things don't work check this SO answer: https://stackoverflow.com/questions/33110992/python-code-for-bluetooth-throws-error-after-i-had-to-reset-the-adapter
+
+Make sure your device is up:
+
+```
+sudo hciconfig hci0 piscan
+```
+
+If the above gives you any errors, then make the interface go up by
+
+```
+sudo hciconfig hci0 up
+```
+
+Then provide a unique name for the device.
+
+```
+sudo hciconfig hci0 name 'Mock Detector'
+```
+
+Also run sikorka with sudo if it is required to access bluetooth.
+
+### Bluetooth API
+
+The bluetooth server API is very simple and text based.
+
+#### Getting address associated with the client via bluetooth
+
+Connect and send `ETH_ADDRESS` followed by a newline.
+
+#### Request detector sign via bluetooth
+
+Connect and send `SIGNED_MESSAGE::0x8bed7fd11ef2efa1899f751a8d422c1fd028610c` where you should replace `0x8bed7fd11ef2efa1899f751a8d422c1fd028610c` with the user address you want the sign for. Always end with newline.
 
 ## Testing
 

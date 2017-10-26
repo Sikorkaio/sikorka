@@ -1,4 +1,3 @@
-import gevent
 import time
 import select
 from bluetooth import (
@@ -9,8 +8,6 @@ from bluetooth import (
     SERIAL_PORT_CLASS,
     SERIAL_PORT_PROFILE,
     advertise_service,
-    discover_devices,
-    lookup_name,
 )
 
 
@@ -37,7 +34,7 @@ def run_bt_server(end_event, device_name, account):
     except BluetoothError as e:
         print(
             'ERROR: Bluetooth Error:{}.\n Quiting bluetooth server. Is your '
-            'bluetooth setup correctly?'.format(e)
+            'bluetooth setup correctly? Do you have sudo privileges?'.format(e)
         )
         return
 
@@ -66,7 +63,6 @@ def run_bt_server(end_event, device_name, account):
                     bufferdata = bufferdata[end + 1:]
                 else:
                     bufferdata = bytearray()
-                print(our_data)
                 bluetooth_process(our_data, client_sock, account)
             except ValueError:
                 pass
