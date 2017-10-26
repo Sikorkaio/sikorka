@@ -33,7 +33,7 @@ contract Owned {
 
 contract SikorkaBasicInterface is Owned {
 
-    string public constant version = "0.1.0";
+    string public constant version = "0.1.1";
     string public name;
     int internal latitude;
     int internal longitude;
