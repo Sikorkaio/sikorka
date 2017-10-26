@@ -7,7 +7,7 @@ import os
 import sys
 import binascii
 import struct
-from ethereum.tools.keys import decode_keystore_json
+from ethereum.keys import decode_keystore_json
 from coincurve import PrivateKey
 from sha3 import keccak_256
 

@@ -1,7 +1,8 @@
 gevent
 web3
 populus
-ethereum
+# This pyethereum restriction is required by eth-test-rpc
+ethereum<2.0.0,>=1.6.1
 Coincurve
 Flask>=0.11.1
 flask-restful
