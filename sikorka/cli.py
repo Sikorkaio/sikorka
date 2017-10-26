@@ -61,6 +61,12 @@ OPTIONS = [
         help='path to a particular file containing a password to use for the key',
         type=click.Path(exists=True),
     ),
+    click.option(
+        '--api-port',
+        help='Sikorka api port',
+        default=5011,
+        type=int,
+    ),
 ]
 
 
@@ -144,7 +150,7 @@ def prompt_account(address_hex, keystore_path, password_file):
 
 @options
 @click.command()
-def app(address, eth_rpc_endpoint, keystore_path, keyfile, passfile):
+def app(address, eth_rpc_endpoint, keystore_path, keyfile, passfile, **kwargs):
     address_hex = address_encoder(address) if address else None
     if keyfile is not None and passfile is not None:
         unlocked_account = Account(keyfile, passfile)
@@ -161,10 +167,12 @@ def run(ctx, **kwargs):
     if ctx.invoked_subcommand is None:
         print('Sikorka desktop client, version {}!'.format(SIKORKA_VERSION))
 
+        # import pdb
+        # pdb.set_trace()
         sikorka_app = ctx.invoke(app, **kwargs)
         sikorka_api = RestAPI(sikorka_app)
         sikorka_rest_server = APIServer(sikorka_api, None, kwargs['eth_rpc_endpoint'])
-        sikorka_rest_server.start('localhost', 7879)
+        sikorka_rest_server.start('localhost', kwargs['api_port'])
         # wait for interrupt
         event = gevent.event.Event()
         gevent.signal(signal.SIGQUIT, event.set)
