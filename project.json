@@ -1,0 +1,33 @@
+{
+    "version": "7",
+    "compilation": {
+        "contracts_source_dirs": [
+            "./contracts",
+            "/path-to-your-external-solidity-files"
+        ],
+        "backend": {
+            "class": "populus.compilation.backends.SolcStandardJSONBackend",
+            "settings": {
+                "stdin": {
+                    "optimizer": {
+                        "enabled": true,
+                        "runs": 500
+                    },
+                    "outputSelection": {
+                        "*": {
+                            "*": [
+                                "abi",
+                                "metadata",
+                                "evm.bytecode",
+                                "evm.deployedBytecode"
+                            ]
+                        }
+                    }
+                },
+                "command_line_options": {
+                    "allow_paths": "/path-to-your-external-solidity-files"
+                }
+            }
+        }
+    }
+}

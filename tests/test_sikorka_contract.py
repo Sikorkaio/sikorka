@@ -113,14 +113,14 @@ def test_sikorka_construction(
         longitude,
         seconds_allowed):
 
-    assert owner == sikorka_interface.call().owner()
-    assert detector == sikorka_interface.call().detector()
+    assert owner == sikorka_interface.call().owner().lower()
+    assert detector == sikorka_interface.call().detector().lower()
     assert name == sikorka_interface.call().name()
     assert seconds_allowed == sikorka_interface.call().seconds_allowed()
 
 
 def test_sikorka_change_owner(sikorka_interface, owner, accounts):
-    assert owner == sikorka_interface.call().owner()
+    assert owner == sikorka_interface.call().owner().lower()
     new_owner = accounts[3]
 
     # only owner should be able to change the owner
@@ -128,7 +128,7 @@ def test_sikorka_change_owner(sikorka_interface, owner, accounts):
         sikorka_interface.transact({'from': new_owner}).change_owner(new_owner)
 
     assert sikorka_interface.transact({'from': owner}).change_owner(new_owner)
-    assert new_owner == sikorka_interface.call().owner()
+    assert new_owner == sikorka_interface.call().owner().lower()
 
 
 def test_sikorka_detector_authorizes_users(
