@@ -42,7 +42,7 @@ contract SikorkaRegistry is Utils {
         uint i;
         int[] memory result;
         result = new int[](sikorka_contracts.length * 2);
-        for (i = 0; i < sikorka_contracts.length; i++) {
+        for (i = 0; i < sikorka_contracts.length * 2; i+=2) {
             result[i] = sikorka_contracts[i].latitude;
             result[i + 1] = sikorka_contracts[i].longitude;
         }
