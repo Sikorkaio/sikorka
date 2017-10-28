@@ -1,5 +1,5 @@
 .wrapall {
-    width: 700px;
+    width: 550px; /* This should be as close to QR png width as possible */
     margin-left: auto;
     margin-right: auto;
 
