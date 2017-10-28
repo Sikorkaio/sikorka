@@ -1,0 +1,40 @@
+.wrapall {
+    width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+
+    justify-content:center;
+    align-items:center;
+}
+
+.imgitem {
+    position: relative;
+    clear: both;
+}
+
+.item {
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+}
+
+.item h2 {
+    text-align:center;
+    position: absolute;
+    line-height: 125px;
+    width: 100%;
+}
+
+svg {
+   -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+
+.circle_animation {
+  stroke-dasharray: 440; /* this value is the pixel circumference of the circle */
+  stroke-dashoffset: 440;
+  transition: all 1s linear;
+}

@@ -1,12 +1,26 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
-  <head>
-      <meta charset="UTF-8">
-	  <meta http-equiv="refresh" content="10" />
-      <title>Rolling QR codes</title>
-	  <img src="/static/qrcode.png"></img>
-	  <!-- <img src="qrcode.png"></img> -->
-  </head>
-  <body>
-  </body>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="refresh" content="10" />
+        <title>Rolling QR codes</title>
+        <script type="text/javascript" src="/static/jquery.min.js"></script>
+        <script src="/static/qrtimer.js"></script>
+        <link rel="stylesheet" href="/static/qr.css">
+        <div class="wrapall">
+        <div class="item html">
+            <h2>0</h2>
+            <svg width="160" height="160" xmlns="http://www.w3.org/2000/svg">
+                <g>
+                    <title>Layer 1</title>
+                    <circle id="circle" class="circle_animation" r="69.85699" cy="81" cx="81" stroke-width="8" stroke="#6fdb6f" fill="none"/>
+                </g>
+            </svg>
+        </div>
+        <div class="imgitem"><img src="/static/qrcode.png"></img></div>
+        </div>
+    </head>
+    <body>
+    </body>
 </html>
+
