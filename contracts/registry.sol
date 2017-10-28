@@ -41,7 +41,6 @@ contract SikorkaRegistry is Utils {
     function getContractCoordinates() public constant returns (int[]) {
         uint i;
         int[] memory result;
-        if (sikorka_contracts.length == 0) {return result;}
         result = new int[](sikorka_contracts.length * 2);
         for (i = 0; i < sikorka_contracts.length; i++) {
             result[2*i] = sikorka_contracts[i].latitude;

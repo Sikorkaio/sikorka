@@ -3,7 +3,6 @@ from ethereum.tester import TransactionFailed
 from conftest import sikorka_contract
 
 
-
 def test_registry_add_contract(chain):
     """Test adding contracts to the registry and querying them"""
     # Deploy 4 contracts (could be anything) since we can only register contracts
