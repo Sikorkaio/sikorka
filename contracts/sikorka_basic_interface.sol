@@ -82,7 +82,7 @@ contract SikorkaBasicInterface is Owned {
         require(now - start <= address_to_duration[msg.sender]);
     }
 
-    function simple_presence_check(bytes message) public {
+    function simple_presence_check(bytes message) public view {
         int g_latitude;
         int g_longitude;
         assembly {
