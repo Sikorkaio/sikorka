@@ -12,6 +12,7 @@ import "./token.sol";
 contract SikorkaDiscountExample is SikorkaBasicInterface, StandardToken {
 
     function SikorkaDiscountExample(
+        string _name,
         address _detector,
         int _latitude,
         int _longitude,
@@ -20,7 +21,7 @@ contract SikorkaDiscountExample is SikorkaBasicInterface, StandardToken {
         uint _totalSupply
     )
         SikorkaBasicInterface(
-            "Example",
+            _name,
             _detector,
             _latitude,
             _longitude,
