@@ -73,6 +73,12 @@ class Account(object):
         message_data = message_data + bytearray(sig)
         return message_data
 
+    def create_qr_sign(self, timestamp):
+        message_data = (bytearray(struct.pack(">Q", timestamp)))
+        sig = self.sign(message_data)
+        message_data = message_data + bytearray(sig)
+        return message_data
+
 
 def find_datadir():
     home = os.path.expanduser('~')

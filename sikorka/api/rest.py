@@ -1,12 +1,13 @@
+import os
 from sikorka.api.encoding import HexAddressConverter
 from sikorka.api.resources import (
     create_blueprint,
     AddressResource,
     DetectorSignResource
 )
-from flask import Flask, make_response, url_for, send_from_directory, request
-from flask.json import jsonify
-from flask_restful import Api, abort
+from werkzeug.exceptions import NotFound
+from flask import Flask, send_from_directory
+from flask_restful import Api
 from flask_cors import CORS
 from gevent.wsgi import WSGIServer
 
@@ -16,22 +17,7 @@ log = slogging.get_logger(__name__)
 
 class APIServer(object):
     """
-    Runs the API-server that routes the endpoint to the resources.
-    The API is wrapped in multiple layers, and the Server should be invoked this way::
-
-
-        # instance of the raiden-api
-        raiden_api = RaidenAPI(...)
-
-        # wrap the raiden-api with rest-logic and encoding
-        rest_api = RestAPI(raiden_api)
-
-        # create the server and link the api-endpoints with flask / flask-restful middleware
-        api_server = APIServer(rest_api)
-
-        # run the server
-        api_server.run('127.0.0.1', 5001, debug=True)
-
+    Runs the sikorka API server
     """
 
     # flask TypeConverter
@@ -41,7 +27,7 @@ class APIServer(object):
     }
     _api_prefix = '/api/1'
 
-    def __init__(self, rest_api, cors_domain_list=None, eth_rpc_endpoint=None):
+    def __init__(self, rest_api, cors_domain_list=None, eth_rpc_endpoint=None, webui=False):
         self.rest_api = rest_api
         self.blueprint = create_blueprint()
         # TODO: Make configurable version
@@ -54,12 +40,27 @@ class APIServer(object):
         else:
             raise ValueError('Invalid api version: {}'.format(self.rest_api.version))
 
-        self.flask_app = Flask(__name__)
+        rootpath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.flask_app = Flask(
+            __name__,
+            static_url_path='/static',
+            static_folder=os.path.join(rootpath, 'ui', 'static')
+        )
         if cors_domain_list:
             CORS(self.flask_app, origins=cors_domain_list)
         self._add_default_resources()
         self._register_type_converters()
         self.flask_app.register_blueprint(self.blueprint)
+        self.flask_app.config['WEBUI_PATH'] = os.path.join(rootpath, 'ui')
+
+        if webui:
+            for route in ['/index.html', '/']:
+                self.flask_app.add_url_rule(
+                    route,
+                    route,
+                    view_func=self._serve_webui,
+                    methods=['GET'],
+                )
 
     def _add_default_resources(self):
         self.add_resource(AddressResource, '/address')
@@ -84,6 +85,14 @@ class APIServer(object):
             route,
             resource_class_kwargs={'rest_api_object': self.rest_api}
         )
+
+    def _serve_webui(self, file='index.html'):
+        try:
+            assert file
+            response = send_from_directory(self.flask_app.config['WEBUI_PATH'], file)
+        except (NotFound, AssertionError):
+            response = send_from_directory(self.flask_app.config['WEBUI_PATH'], 'index.html')
+        return response
 
     def run(self, host='127.0.0.1', port=5011, **kwargs):
         self.flask_app.run(host=host, port=port, **kwargs)

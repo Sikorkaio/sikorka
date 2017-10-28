@@ -5,3 +5,7 @@ migrations/
 tests/__pycache__/
 *.pyc
 contracts/trigonometry_generated.sol
+
+# package related
+dist/
+Sikorka.egg-info/

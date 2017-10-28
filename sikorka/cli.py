@@ -11,6 +11,7 @@ from sikorka.service import Sikorka
 from sikorka.api.rest import APIServer
 from sikorka.api.api import RestAPI
 from sikorka.btserver import run_bt_server
+from sikorka.qrcodes import generate_qr_codes
 
 
 SIKORKA_VERSION = '0.0.1'
@@ -77,6 +78,11 @@ OPTIONS = [
         '--bluetooth-server/--no-bluetooth-server',
         default=False,
         help='Turn the Bluetooth server API on/off'
+    ),
+    click.option(
+        '--qrcodes/--no-qrcodes',
+        default=False,
+        help='Run a simple webserver generating signed timed QR codes'
     ),
     click.option(
         '--bluetooth-device-name',
@@ -179,7 +185,7 @@ def app(address, eth_rpc_endpoint, keystore_path, keyfile, passfile, **kwargs):
 @click.group(invoke_without_command=True)
 @options
 @click.pass_context
-def run(ctx, rpc, bluetooth_server, **kwargs):
+def run(ctx, rpc, bluetooth_server, qrcodes, **kwargs):
     if ctx.invoked_subcommand is None:
         print('Sikorka desktop client, version {}!'.format(SIKORKA_VERSION))
 
@@ -187,7 +193,12 @@ def run(ctx, rpc, bluetooth_server, **kwargs):
         sikorka_app = ctx.invoke(app, **kwargs)
         sikorka_api = RestAPI(sikorka_app)
         if rpc:
-            sikorka_rest_server = APIServer(sikorka_api, None, kwargs['eth_rpc_endpoint'])
+            sikorka_rest_server = APIServer(
+                rest_api=sikorka_api,
+                cors_domain_list=None,
+                eth_rpc_endpoint=kwargs['eth_rpc_endpoint'],
+                webui=qrcodes,
+            )
             sikorka_rest_server.start('localhost', kwargs['api_port'])
 
         if bluetooth_server:
@@ -198,6 +209,13 @@ def run(ctx, rpc, bluetooth_server, **kwargs):
                 sikorka_app.account
             )
 
+        if qrcodes:
+            qrcodes_greenlet = gevent.spawn(
+                generate_qr_codes,
+                end_event,
+                sikorka_app.account
+            )
+
         # wait for interrupt
         gevent.signal(signal.SIGQUIT, end_event.set)
         gevent.signal(signal.SIGTERM, end_event.set)
@@ -205,8 +223,10 @@ def run(ctx, rpc, bluetooth_server, **kwargs):
         end_event.wait()
 
         if bluetooth_server:
-            print("Coming here 3")
             bt_server.join()
+
+        if qrcodes:
+            qrcodes_greenlet.join()
 
         if rpc:
             sikorka_rest_server.stop()
