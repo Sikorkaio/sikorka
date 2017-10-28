@@ -7,7 +7,7 @@ This repository contains a desktop app and the smart contracts for the [Sikorka]
 
 ### Installation
 
-Create a virtualenvironment and do `pip install -e .`
+Create a virtualenvironment and do `python setup.py install`
 
 Then you can call the sikorka executable via `sikorka`. For a list of all commands
 write `sikorka --help`.
