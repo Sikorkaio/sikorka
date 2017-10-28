@@ -41,10 +41,11 @@ contract SikorkaRegistry is Utils {
     function getContractCoordinates() public constant returns (int[]) {
         uint i;
         int[] memory result;
+        if (sikorka_contracts.length == 0) {return result;}
         result = new int[](sikorka_contracts.length * 2);
-        for (i = 0; i < sikorka_contracts.length * 2; i+=2) {
-            result[i] = sikorka_contracts[i].latitude;
-            result[i + 1] = sikorka_contracts[i].longitude;
+        for (i = 0; i < sikorka_contracts.length; i++) {
+            result[2*i] = sikorka_contracts[i].latitude;
+            result[2*i + 1] = sikorka_contracts[i].longitude;
         }
         return result;
     }

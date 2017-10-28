@@ -63,6 +63,14 @@ def use_signee_detector():
     return False
 
 
+@pytest.fixture()
+def unique_registry():
+    """
+    Returns if the sikorka contract should also deploy one special registry
+    for itself or not. Default is not"""
+    return False
+
+
 @pytest.fixture
 def create_contract(chain, owner, web3, use_signee_detector, sikorka_ctx):
     def get(contract_type, arguments, transaction=None):
@@ -108,8 +116,12 @@ def sikorka_contract(
         create_contract,
         detector,
         latitude,
-        longitude):
-    registry, _ = chain.provider.deploy_contract('SikorkaRegistry')
+        longitude,
+        unique_registry):
+    if unique_registry:
+        registry, _ = chain.provider.deploy_contract('SikorkaRegistry')
+    else:
+        registry, _ = chain.provider.get_or_deploy_contract('SikorkaRegistry')
     factory = chain.provider.get_contract_factory('SikorkaExample')
     sikorka = create_contract(factory, [
         detector, latitude, longitude, seconds_allowed(), registry.address
@@ -119,9 +131,12 @@ def sikorka_contract(
 
 
 @pytest.fixture()
-def create_sikorka_contract(chain, web3, create_contract):
+def create_sikorka_contract(chain, web3, create_contract, unique_registry):
     def get(name, detector, latitude, longitude, seconds_allowed):
-        registry, _ = chain.provider.deploy_contract('SikorkaRegistry')
+        if unique_registry:
+            registry, _ = chain.provider.deploy_contract('SikorkaRegistry')
+        else:
+            registry, _ = chain.provider.get_or_deploy_contract('SikorkaRegistry')
         factory = chain.provider.get_contract_factory('SikorkaExample')
         sikorka = create_contract(factory, [
             detector, latitude, longitude, seconds_allowed(), registry.address
