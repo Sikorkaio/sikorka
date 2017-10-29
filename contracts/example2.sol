@@ -33,7 +33,7 @@ contract SikorkaDiscountExample is SikorkaBasicInterface, StandardToken {
         balances[this] = _totalSupply;
     }
 
-    function claimToken(bytes data) public proof_of_presence(data) {
+    function claimTokens(bytes data) public proof_of_presence(data) {
         transfer(msg.sender, 100);
     }
 
