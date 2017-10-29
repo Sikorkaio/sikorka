@@ -67,10 +67,12 @@ contract SikorkaBasicInterface is Owned {
             detector_direct_authorization();
         } else if (message[0] == 1) {
             detector_signed_message(message);
-        } else if (message[1] == 2) {
+        } else if (message[0] == 2) {
             // only allow this scenario if the contract was deployed without a detector
             require(detector == 0);
             simple_presence_check(message);
+        } else if (message[0] == 3) {
+            signed_timestamp_check(message);
         } else {
             require(false); // unrecognized protocol
         }
@@ -205,6 +207,10 @@ contract SikorkaBasicInterface is Owned {
         for (uint i = start; i < end; i++) {
             n[i-start] = a[i];
         }
+    }
+
+    function signed_timestamp_check(bytes message) public view {
+        // TODO
     }
 
     function signature_split(bytes signature)
