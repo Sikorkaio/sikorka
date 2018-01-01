@@ -51,7 +51,7 @@ library Trigonometry {
      *         _offset bit
      */
     function bits(uint _value, uint _width, uint _offset) pure internal returns (uint) {
-        return (_value / (2 ** _offset)) & (((2 **  _width)) - 1);
+        return (_value / (2 ** _offset)) & (((2 ** _width)) - 1);
     }
 
     function sin_table_lookup(uint index) pure internal returns (uint16) {
