@@ -109,7 +109,7 @@ library Trigonometry {
      */
     function cos(uint16 _angle) public pure returns (int) {
         if (_angle > ANGLES_IN_CYCLE - QUADRANT_LOW_MASK) {
-            _angle = QUADRANT_LOW_MASK - ANGLES_IN_CYCLE - _angle;
+            _angle = _angle + QUADRANT_LOW_MASK - ANGLES_IN_CYCLE;
         } else {
             _angle += QUADRANT_LOW_MASK;
         }
